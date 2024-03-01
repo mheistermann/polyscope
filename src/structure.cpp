@@ -9,7 +9,9 @@
 namespace polyscope {
 
 Structure::Structure(std::string name_, std::string subtypeName)
-    : name(name_), enabled(subtypeName + "#" + name + "#enabled", true),
+    : name(name_),
+      enabled(subtypeName + "#" + name + "#enabled", true),
+      pickingEnabled(subtypeName + "#" + name + "#picking_enabled", true),
       objectTransform(subtypeName + "#" + name + "#object_transform", glm::mat4(1.0)),
       transparency(subtypeName + "#" + name + "#transparency", 1.0),
       transformGizmo(subtypeName + "#" + name + "#transform_gizmo", objectTransform.get(), &objectTransform),
@@ -29,8 +31,13 @@ Structure* Structure::setEnabled(bool newEnabled) {
   requestRedraw();
   return this;
 };
+Structure* Structure::setPickingEnabled(bool newPickingEnabled) {
+  pickingEnabled = newPickingEnabled;
+  return this;
+}
 
 bool Structure::isEnabled() { return enabled.get(); };
+bool Structure::isPickingEnabled() const { return pickingEnabled.get(); };
 
 void Structure::enableIsolate() {
   for (auto& structure : polyscope::state::structures[this->typeName()]) {
