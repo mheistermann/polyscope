@@ -85,6 +85,8 @@ public:
   // manuallyChanged() is called, rather than immediately (ugly, but seems necessary to use with imgui)
   T& get() { return value; }
 
+  T const& get() const { return value; }
+
   // Mark that a value has been directly written via the get() reference, and should be cached
   void manuallyChanged() { set(value); }
 
