@@ -149,7 +149,9 @@ std::pair<Structure*, size_t> evaluatePickQuery(int xPos, int yPos) {
   // Render pick buffer
   for (auto& cat : state::structures) {
     for (auto& x : cat.second) {
-      x.second->drawPick();
+        if (x.second->isPickingEnabled()) {
+            x.second->drawPick();
+        }
     }
   }
 

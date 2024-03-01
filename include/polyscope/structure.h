@@ -93,7 +93,9 @@ public:
 
   // Selection tools
   virtual Structure* setEnabled(bool newEnabled);
+  Structure* setPickingEnabled(bool newPickingEnabled);
   bool isEnabled();
+  bool isPickingEnabled() const;
   void enableIsolate();                      // enable this structure, disable all of same type
   void setEnabledAllOfType(bool newEnabled); // enable/disable all structures of this type
   void addToGroup(std::string groupName);
@@ -113,6 +115,7 @@ public:
 protected:
   // = State
   PersistentValue<bool> enabled;
+  PersistentValue<bool> pickingEnabled;
   PersistentValue<glm::mat4> objectTransform; // rigid transform
 
   // 0 for transparent, 1 for opaque, only has effect if engine transparency is set
