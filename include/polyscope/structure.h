@@ -111,6 +111,7 @@ public:
   void translate(glm::vec3 vec);   // *adds* vec to the position
   glm::mat4x4 getTransform();
   glm::vec3 getPosition();
+  glm::vec3 getLocalPosition(glm::vec3 const &worldPos);
   TransformationGizmo& getTransformGizmo();
 
   // = Length and bounding box
@@ -267,6 +268,8 @@ protected:
   PersistentValue<bool> enabled;
   PersistentValue<bool> pickingEnabled;
   PersistentValue<glm::mat4> objectTransform; // rigid transform
+  glm::mat4 objectInverseTransform;           // cached inverse of objectTransform
+  void updateInverseTransform();
 
   // 0 for transparent, 1 for opaque, only has effect if engine transparency is set
   PersistentValue<float> transparency;
