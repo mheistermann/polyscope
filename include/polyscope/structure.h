@@ -81,6 +81,7 @@ public:
   void translate(glm::vec3 vec);   // *adds* vec to the position
   glm::mat4x4 getTransform();
   glm::vec3 getPosition();
+  glm::vec3 getLocalPosition(glm::vec3 const &worldPos);
 
   void setStructureUniforms(render::ShaderProgram& p);
   bool wantsCullPosition();
@@ -135,6 +136,9 @@ protected:
   std::tuple<glm::vec3, glm::vec3> objectSpaceBoundingBox;
   float objectSpaceLengthScale;
   virtual void updateObjectSpaceBounds() = 0;
+
+  glm::mat4 objectInverseTransform;
+  void updateInverseTransform();
 };
 
 
