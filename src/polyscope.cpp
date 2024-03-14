@@ -508,8 +508,7 @@ void renderScene() {
 void renderSceneToScreen() {
   render::engine->bindDisplay();
   if (options::debugDrawPickBuffer) {
-    // special debug draw
-    pick::evaluatePickQuery(-1, -1); // populate the buffer
+    pick::renderForPicking();
     render::engine->pickFramebuffer->blitTo(render::engine->displayBuffer.get());
   } else {
     render::engine->applyLightingTransform(render::engine->sceneColorFinal);
