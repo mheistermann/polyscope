@@ -16,7 +16,6 @@ namespace pick {
 // Request 'count' contiguous indices for drawing a pick buffer. The return value is the start of the range.
 size_t requestPickBufferRange(Structure* requestingStructure, size_t count);
 
-
 // == Main query
 // Get the structure which was clicked on (nullptr if none), and the pick ID in local indices for that structure (such
 // that 0 is the first index as returned from requestPickBufferRange())
@@ -24,6 +23,7 @@ std::pair<Structure*, size_t> pickAtScreenCoords(glm::vec2 screenCoords); // tak
 std::pair<Structure*, size_t> pickAtBufferCoords(int xPos, int yPos);     // takes indices into the buffer
 std::pair<Structure*, size_t> evaluatePickQuery(int xPos, int yPos);      // old, badly named. takes buffer coordinates.
 
+bool renderForPicking();
 
 // == Stateful picking: track and update a current selection
 

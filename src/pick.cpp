@@ -126,15 +126,8 @@ std::pair<Structure*, size_t> pickAtScreenCoords(glm::vec2 screenCoords) {
 
 std::pair<Structure*, size_t> pickAtBufferCoords(int xPos, int yPos) { return evaluatePickQuery(xPos, yPos); }
 
-std::pair<Structure*, size_t> evaluatePickQuery(int xPos, int yPos) {
 
-  // NOTE: hack used for debugging: if xPos == yPos == -1 we do a pick render but do not query the value.
-
-  // Be sure not to pick outside of buffer
-  if (xPos < -1 || xPos >= view::bufferWidth || yPos < -1 || yPos >= view::bufferHeight) {
-    return {nullptr, 0};
-  }
-
+bool renderForPicking() {
   render::FrameBuffer* pickFramebuffer = render::engine->pickFramebuffer.get();
 
   render::engine->setDepthMode(DepthMode::Less);
@@ -143,7 +136,7 @@ std::pair<Structure*, size_t> evaluatePickQuery(int xPos, int yPos) {
   pickFramebuffer->resize(view::bufferWidth, view::bufferHeight);
   pickFramebuffer->setViewport(0, 0, view::bufferWidth, view::bufferHeight);
   pickFramebuffer->clearColor = glm::vec3{0., 0., 0.};
-  if (!pickFramebuffer->bindForRendering()) return {nullptr, 0};
+  if (!pickFramebuffer->bindForRendering()) return false;
   pickFramebuffer->clear();
 
   // Render pick buffer
@@ -154,11 +147,22 @@ std::pair<Structure*, size_t> evaluatePickQuery(int xPos, int yPos) {
         }
     }
   }
+  return true;
+}
+std::pair<Structure *, size_t> evaluatePickQuery(int xPos, int yPos) {
 
   if (xPos == -1 || yPos == -1) {
     return {nullptr, 0};
   }
+  // Be sure not to pick outside of buffer
+  if (xPos < -1 || xPos >= view::bufferWidth || yPos < -1 || yPos >= view::bufferHeight) {
+      return {nullptr, 0};
+  }
+  if(!renderForPicking()) {
+      return {nullptr, 0};
+  }
 
+  render::FrameBuffer* pickFramebuffer = render::engine->pickFramebuffer.get();
   // Read from the pick buffer
   std::array<float, 4> result = pickFramebuffer->readFloat4(xPos, view::bufferHeight - yPos);
   size_t globalInd = pick::vecToInd(glm::vec3{result[0], result[1], result[2]});
