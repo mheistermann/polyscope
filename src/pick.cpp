@@ -235,7 +235,9 @@ std::tuple<Structure*, Quantity*, uint64_t> evaluatePickQueryFull(int xPos, int 
   // Render pick buffer
   for (auto& cat : state::structures) {
     for (auto& x : cat.second) {
-      x.second->drawPick();
+      if (x.second->isPickingEnabled()) {
+        x.second->drawPick();
+      }
     }
   }
   for (auto& catMap : state::structures) {
