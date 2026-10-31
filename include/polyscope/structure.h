@@ -268,8 +268,6 @@ protected:
   PersistentValue<bool> enabled;
   PersistentValue<bool> pickingEnabled;
   PersistentValue<glm::mat4> objectTransform; // rigid transform
-  glm::mat4 objectInverseTransform;           // cached inverse of objectTransform
-  void updateInverseTransform();
 
   // 0 for transparent, 1 for opaque, only has effect if engine transparency is set
   PersistentValue<float> transparency;

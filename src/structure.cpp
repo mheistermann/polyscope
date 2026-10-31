@@ -10,6 +10,8 @@
 
 #include "imgui.h"
 
+#include <glm/gtc/matrix_inverse.hpp>
+
 namespace polyscope {
 
 Structure::Structure(std::string name_, std::string subtypeName_)
@@ -18,7 +20,6 @@ Structure::Structure(std::string name_, std::string subtypeName_)
       enabled(subtypeName + "#" + name + "#enabled", true),
       pickingEnabled(subtypeName + "#" + name + "#picking_enabled", true),
       objectTransform(subtypeName + "#" + name + "#object_transform", glm::mat4(1.0)),
-      objectInverseTransform(glm::mat4(1.0)),
       transparency(subtypeName + "#" + name + "#transparency", 1.0),
       transformGizmo(subtypeName + "#" + name + "#transform_gizmo", &objectTransform.get(), &objectTransform),
       cullWholeElements(subtypeName + "#" + name + "#cullWholeElements", false),
@@ -216,7 +217,6 @@ float Structure::lengthScale() {
 
 void Structure::setTransform(glm::mat4x4 transform) {
   objectTransform = transform;
-  updateInverseTransform();
   updateStructureExtents();
 }
 
@@ -224,20 +224,11 @@ void Structure::setPosition(glm::vec3 vec) {
   objectTransform.get()[3][0] = vec.x;
   objectTransform.get()[3][1] = vec.y;
   objectTransform.get()[3][2] = vec.z;
-  updateInverseTransform();
   updateStructureExtents();
 }
 
-void Structure::updateInverseTransform() {
-    glm::mat3x4 R;
-    glm::vec3 T;
-    polyscope::splitTransform(getTransform(), R, T);
-    glm::mat3 R_inv = glm::inverse(glm::mat3(R));
-    glm::mat4 inv = polyscope::buildTransform(R_inv, R_inv * -T);
-}
 void Structure::translate(glm::vec3 vec) {
   objectTransform = glm::translate(objectTransform.get(), vec);
-  updateInverseTransform();
   updateStructureExtents();
 }
 
@@ -249,13 +240,14 @@ glm::vec3 Structure::getPosition() {
 
 TransformationGizmo& Structure::getTransformGizmo() { return transformGizmo; }
 
+// SLOP fix: the transform is also written straight into the persistent value
+// by the transform gizmo, so a cached inverse would go stale; invert on demand.
 glm::vec3 Structure::getLocalPosition(glm::vec3 const &worldPos) {
-  return glm::vec3(objectInverseTransform * glm::vec4(worldPos, 1));
+  return glm::vec3(glm::inverse(objectTransform.get()) * glm::vec4(worldPos, 1));
 }
 
 void Structure::resetTransform() {
   objectTransform = glm::mat4(1.0);
-  objectInverseTransform = glm::mat4(1.0);
   updateStructureExtents();
 }
 
@@ -264,7 +256,6 @@ void Structure::centerBoundingBox() {
   glm::vec3 center = (std::get<1>(bbox) + std::get<0>(bbox)) / 2.0f;
   glm::mat4x4 newTrans = glm::translate(glm::mat4x4(1.0), -glm::vec3(center.x, center.y, center.z));
   objectTransform = newTrans * objectTransform.get();
-  updateInverseTransform();
   updateStructureExtents();
 }
 
@@ -273,7 +264,6 @@ void Structure::rescaleToUnit() {
   float s = static_cast<float>(1.0 / currScale);
   glm::mat4x4 newTrans = glm::scale(glm::mat4x4(1.0), glm::vec3{s, s, s});
   objectTransform = newTrans * objectTransform.get();
-  updateInverseTransform();
   updateStructureExtents();
 }
 
